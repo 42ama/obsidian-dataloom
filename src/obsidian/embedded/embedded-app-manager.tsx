@@ -263,11 +263,8 @@ const resetLinkStyles = (linkEl: HTMLElement) => {
  * @param linkEl - The link element that contains the embedded loom
  */
 const setLinkSize = (linkEl: HTMLElement) => {
-	const { defaultEmbedWidth, defaultEmbedHeight } =
-		store.getState().global.settings;
-
-	const width = getLinkWidth(linkEl, defaultEmbedWidth);
-	const height = getLinkHeight(linkEl, defaultEmbedHeight);
+	const width = getLinkWidth(linkEl);
+	const height = getLinkHeight(linkEl);
 
 	linkEl.style.width = width;
 	linkEl.style.height = height;

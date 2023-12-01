@@ -33,13 +33,13 @@ import { getAssignedPropertyType } from "./shared/frontmatter/obsidian-utils";
 import { handleFileRename } from "./data/main-utils";
 import { getBasename } from "./shared/link-and-path/file-path-utils";
 
+export type DefaultRowDisplay = 5 | 10 | 25 | 50 | "all";
 export interface DataLoomSettings {
 	shouldDebug: boolean;
 	createAtObsidianAttachmentFolder: boolean;
 	customFolderForNewFiles: string;
 	removeMarkdownOnExport: boolean;
-	defaultEmbedWidth: string;
-	defaultEmbedHeight: string;
+	defaultRowDisplay: DefaultRowDisplay;
 	hasMigratedTo800: boolean;
 	showWelcomeModal: boolean;
 	showWhatsNewModal: boolean;
@@ -52,8 +52,7 @@ export const DEFAULT_SETTINGS: DataLoomSettings = {
 	createAtObsidianAttachmentFolder: false,
 	customFolderForNewFiles: "",
 	removeMarkdownOnExport: true,
-	defaultEmbedWidth: "100%",
-	defaultEmbedHeight: "340px",
+	defaultRowDisplay: 5,
 	hasMigratedTo800: false,
 	showWelcomeModal: true,
 	showWhatsNewModal: true,
