@@ -33,11 +33,17 @@ import "src/react/global.css";
 import "./styles.css";
 import { useAppEvents } from "./hooks/use-app-events";
 import { useMenuEvents } from "./hooks/use-menu-events";
+import { useAppSelector } from "src/redux/hooks";
+import { numToPx } from "src/shared/conversion";
+import { DefaultRowDisplay } from "src/main";
 
 export default function App() {
 	const logger = useLogger();
 	const { reactAppId, isMarkdownView } = useAppMount();
 
+	const { defaultRowDisplay } = useAppSelector(
+		(state) => state.global.settings
+	);
 	const { loomState, resizingColumnId, searchText, onRedo, onUndo } =
 		useLoomState();
 
@@ -86,8 +92,86 @@ export default function App() {
 		onTagChange,
 	} = useTag();
 
-	const { columns, filters, settings, sources } = loomState.model;
+	const { columns, filters, settings, sources, rows } = loomState.model;
 	const { numFrozenColumns, showCalculationRow } = settings;
+
+	React.useEffect(() => {
+		function calculateTableRowsHeight(
+			appEl: HTMLElement,
+			defaultRowDisplay: DefaultRowDisplay
+		) {
+			// Get all row elements ('tr') from the table
+			const rows = appEl.querySelectorAll(
+				".dataloom-body > .dataloom-row"
+			);
+			if (rows.length === 0) return 0;
+
+			let numRowsToCalculate;
+			if (defaultRowDisplay === "all") {
+				numRowsToCalculate = rows.length;
+			} else {
+				numRowsToCalculate = defaultRowDisplay;
+				if (numRowsToCalculate > rows.length) {
+					numRowsToCalculate = rows.length;
+				}
+			}
+
+			// Calculate the height of the first 5 rows
+			let totalHeight = 0;
+			for (let i = 0; i < numRowsToCalculate; i++) {
+				const { height } = rows[i].getBoundingClientRect();
+				totalHeight += height;
+			}
+			return totalHeight;
+		}
+
+		function calculateTableHeaderHeight(appEl: HTMLElement) {
+			const headerEl = appEl.querySelector(".dataloom-header");
+			if (!headerEl) return 0;
+			const { height } = headerEl.getBoundingClientRect();
+			return height;
+		}
+
+		function calculateTableFooterHeight(appEl: HTMLElement) {
+			const footerEl = appEl.querySelector(".dataloom-footer");
+			if (!footerEl) return 0;
+			const { height } = footerEl.getBoundingClientRect();
+			return height;
+		}
+
+		function calculateOptionBarHeight(appEl: HTMLElement) {
+			const optionBarEl = appEl.querySelector(".dataloom-option-bar");
+			if (!optionBarEl) return 0;
+			const { height } = optionBarEl.getBoundingClientRect();
+			return height;
+		}
+
+		function calculateBottomBarHeight(appEl: HTMLElement) {
+			const bottomBarEl = appEl.querySelector(".dataloom-bottom-bar");
+			if (!bottomBarEl) return 0;
+			const { height } = bottomBarEl.getBoundingClientRect();
+			return height;
+		}
+
+		const appEl = document.getElementById(reactAppId);
+		if (!appEl) return;
+
+		appEl.style.height = "20000px";
+
+		requestAnimationFrame(() => {
+			let calculatedHeight = 0;
+			calculatedHeight += calculateTableRowsHeight(
+				appEl,
+				defaultRowDisplay
+			);
+			calculatedHeight += calculateTableHeaderHeight(appEl);
+			calculatedHeight += calculateTableFooterHeight(appEl);
+			calculatedHeight += calculateOptionBarHeight(appEl);
+			calculatedHeight += calculateBottomBarHeight(appEl);
+
+			appEl.style.height = numToPx(calculatedHeight);
+		});
+	}, [reactAppId, defaultRowDisplay, rows.length]);
 
 	function handleScrollToTopClick() {
 		tableRef.current?.scrollToIndex(0);
