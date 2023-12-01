@@ -167,16 +167,16 @@ export default function RowOptions({
 		const children = rowEl.querySelectorAll(".dataloom-cell");
 
 		for (let i = 0; i < children.length; i++) {
-			children[i].classList.add("dataloom-tr--drag-over");
+			children[i].classList.add("dataloom-row--drag-over");
 		}
 	}
 
 	function removeDragHover() {
 		//Add dragging over class to all the children
-		const children = document.querySelectorAll(".dataloom-tr--drag-over");
+		const children = document.querySelectorAll(".dataloom-row--drag-over");
 
 		for (let i = 0; i < children.length; i++) {
-			children[i].classList.remove("dataloom-tr--drag-over");
+			children[i].classList.remove("dataloom-row--drag-over");
 		}
 	}
 
