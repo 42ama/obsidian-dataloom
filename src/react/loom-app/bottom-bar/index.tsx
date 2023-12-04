@@ -1,5 +1,3 @@
-import React from "react";
-
 import _ from "lodash";
 
 import NewRowButton from "../new-row-button";
@@ -9,7 +7,6 @@ import Flex from "src/react/shared/flex";
 import Padding from "src/react/shared/padding";
 import Icon from "src/react/shared/icon";
 
-import { numToPx } from "src/shared/conversion";
 import { isOnMobile } from "src/shared/render-utils";
 
 import "./styles.css";
