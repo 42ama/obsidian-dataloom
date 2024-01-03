@@ -1,6 +1,9 @@
 import { App } from "obsidian";
 import { ObsidianPropertyType } from "./types";
 import { getAllObsidianProperties } from "./obsidian-utils";
+import Logger from "js-logger";
+
+const CLASS_NAME = "FrontmatterCache";
 
 export default class FrontmatterCache {
 	static instance: FrontmatterCache;
@@ -11,7 +14,7 @@ export default class FrontmatterCache {
 	>();
 
 	loadProperties(app: App) {
-		// console.log("Loading frontmatter properties...");
+		Logger.info(CLASS_NAME, "loadProperties", "called");
 		this.cache.clear();
 
 		const properties = getAllObsidianProperties(app);

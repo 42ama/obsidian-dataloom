@@ -17,11 +17,20 @@ import { dateTimeToObsidianDateTime } from "./date-utils";
 import { updateObsidianPropertyType } from "src/shared/frontmatter/obsidian-utils";
 import { ObsidianPropertyType } from "src/shared/frontmatter/types";
 import TagNotFoundError from "src/shared/error/tag-not-found-error";
+import Logger from "js-logger";
+
+const FILE_NAME = "serialize-frontmatter.ts";
 
 export const serializeFrontmatter = async (app: App, state: LoomState) => {
-	// console.log("serializing frontmatter...");
+	Logger.trace(FILE_NAME, "serializeFrontmatter", "called");
+
 	const { rows, columns, sources } = state.model;
-	if (sources.length === 0) return;
+	if (sources.length === 0) {
+		Logger.debug(FILE_NAME, "serializeFrontmatter", "returning. no sources found");
+		return;
+	}
+
+	Logger.info(FILE_NAME, "serializeFrontmatter", "serialing frontmatter...");
 
 	const sourceFileColumn = columns.find(
 		(column) => column.type === CellType.SOURCE_FILE
