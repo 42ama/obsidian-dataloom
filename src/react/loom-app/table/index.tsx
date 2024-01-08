@@ -79,7 +79,7 @@ interface Props {
 	onRowReorder: RowReorderHandler;
 }
 
-const Table = React.forwardRef<React.Ref<HTMLDivElement>, Props>(function Table(
+const Table = React.forwardRef<HTMLDivElement | null, Props>(function Table(
 	{
 		sources,
 		rows,

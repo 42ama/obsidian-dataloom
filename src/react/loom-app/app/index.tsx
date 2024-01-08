@@ -1,7 +1,5 @@
 import React from "react";
 
-import { VirtuosoHandle } from "react-virtuoso";
-
 import Table from "../table";
 import OptionBar from "../option-bar";
 import BottomBar from "../bottom-bar";
@@ -40,7 +38,7 @@ export default function App() {
 	const { loomState, resizingColumnId, searchText, onRedo, onUndo } =
 		useLoomState();
 
-	const tableRef = React.useRef<VirtuosoHandle | null>(null);
+	const tableRef = React.useRef<HTMLDivElement | null>(null);
 	const appRef = React.useRef<HTMLDivElement | null>(null);
 
 	useExportEvents(loomState);
@@ -89,11 +87,13 @@ export default function App() {
 	const { numFrozenColumns, showCalculationRow } = settings;
 
 	function handleScrollToTopClick() {
-		tableRef.current?.scrollToIndex(0);
+		//tableRef.current?.scrollToIndex(0);
+		//TODO: Scroll to top
 	}
 
 	function handleScrollToBottomClick() {
-		tableRef.current?.scrollToIndex(filteredRows.length - 1);
+		//tableRef.current?.scrollToIndex(filteredRows.length - 1);
+		//TODO Scroll to bottom
 	}
 
 	function handleKeyDown(e: React.KeyboardEvent) {
