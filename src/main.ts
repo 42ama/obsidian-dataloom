@@ -336,7 +336,7 @@ export default class DataLoomPlugin extends Plugin {
 							const now = Date.now();
 							const lastTime = LastSavedManager.getInstance().getLastSavedTime();
 							if (now - lastTime < 5000) {
-								Logger.debug(FILE_NAME, "registerEvent", "vault.modify event ignored because it file was saved less than 5 seconds ago");
+								Logger.debug(FILE_NAME, "registerEvent", "vault.modify event ignored because file was saved less than 5 seconds ago");
 								return;
 							}
 						}
