@@ -1,6 +1,7 @@
 import React from "react";
 import { useStickyOffset } from "./hooks";
 import { numToPx } from "src/shared/conversion";
+import { block } from "million/react";
 
 interface Props {
 	rowId: string;
@@ -9,7 +10,7 @@ interface Props {
 	contentNode: React.ReactNode;
 }
 
-export default function BodyCell({
+const BodyCell = block(function BodyCell({
 	rowId,
 	index,
 	numFrozenColumns,
@@ -31,4 +32,6 @@ export default function BodyCell({
 			{contentNode}
 		</div>
 	);
-}
+});
+
+export default BodyCell;

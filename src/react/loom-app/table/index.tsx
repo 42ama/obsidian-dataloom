@@ -52,6 +52,7 @@ import {
 import "./styles.css";
 import { getAcceptedFrontmatterTypes } from "src/shared/frontmatter/utils";
 import FrontmatterCache from "src/shared/frontmatter/frontmatter-cache";
+import { For } from "million/react";
 
 interface Props {
 	showCalculationRow: boolean;
@@ -227,258 +228,272 @@ const BodyCells = ({
 	const source = sources.find((source) => source.id === sourceId) ?? null;
 
 	const columns = [null, ...visibleColumns, null];
-	return columns.map((column, i) => {
-		let contentNode: React.ReactNode;
-		let key: string;
+	return (
+		<For each={columns}>
+			{(column, i) => {
+				let contentNode: React.ReactNode;
+				let key: string;
 
-		if (column === null) {
-			key = `filler-${i}`;
-			if (i === 0) {
-				contentNode = (
-					<RowOptions
-						source={source}
+				if (column === null) {
+					key = `filler-${i}`;
+					if (i === 0) {
+						contentNode = (
+							<RowOptions
+								source={source}
+								rowId={rowId}
+								onDeleteClick={onRowDeleteClick}
+								onInsertAboveClick={onRowInsertAboveClick}
+								onInsertBelowClick={onRowInsertBelowClick}
+								onRowReorder={onRowReorder}
+							/>
+						);
+					} else {
+						contentNode = <></>;
+					}
+				} else {
+					const {
+						id: columnId,
+						width,
+						type,
+						shouldWrapOverflow,
+						currencyType,
+						includeTime,
+						dateFormatSeparator,
+						numberPrefix,
+						numberSeparator,
+						numberFormat,
+						numberSuffix,
+						dateFormat,
+						hour12,
+						tags,
+						verticalPadding,
+						horizontalPadding,
+						aspectRatio,
+						frontmatterKey,
+					} = column;
+
+					const cell = row.cells.find(
+						(cell) => cell.columnId === columnId
+					);
+					if (!cell)
+						throw new CellNotFoundError({
+							columnId,
+							rowId,
+						});
+
+					const source =
+						sources.find((source) => source.id === row.sourceId) ??
+						null;
+
+					key = column.id;
+
+					const { id, hasValidFrontmatter } = cell;
+
+					const commonProps = {
+						id,
+						hasValidFrontmatter,
+						columnId,
+						frontmatterKey,
+						verticalPadding,
+						includeTime,
+						dateFormatSeparator,
+						horizontalPadding,
+						aspectRatio,
+						columnTags: tags,
+						source,
+						hour12,
+						numberFormat,
+						rowCreationTime: creationDateTime,
+						dateFormat,
+						currencyType,
+						numberPrefix,
+						numberSuffix,
+						numberSeparator,
+						rowLastEditedTime: lastEditedDateTime,
+						shouldWrapOverflow,
+						width,
+						onCellChange,
+					};
+
+					switch (type) {
+						case CellType.TEXT: {
+							const { content } = cell as TextCell;
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+									content={content}
+								/>
+							);
+							break;
+						}
+						case CellType.NUMBER: {
+							const { value } = cell as NumberCell;
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+									value={value}
+								/>
+							);
+							break;
+						}
+						case CellType.TAG: {
+							const { tagId } = cell as TagCell;
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+									tagId={tagId}
+									onTagAdd={onTagAdd}
+									onTagCellAdd={onTagCellAdd}
+									onTagCellRemove={onTagCellRemove}
+									onTagCellMultipleRemove={
+										onTagCellMultipleRemove
+									}
+									onTagChange={onTagChange}
+									onTagDeleteClick={onTagDeleteClick}
+								/>
+							);
+							break;
+						}
+						case CellType.MULTI_TAG: {
+							const { tagIds } = cell as MultiTagCell;
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+									tagIds={tagIds}
+									onCellChange={onCellChange}
+									onTagAdd={onTagAdd}
+									onTagCellAdd={onTagCellAdd}
+									onTagCellRemove={onTagCellRemove}
+									onTagCellMultipleRemove={
+										onTagCellMultipleRemove
+									}
+									onTagChange={onTagChange}
+									onTagDeleteClick={onTagDeleteClick}
+								/>
+							);
+							break;
+						}
+						case CellType.FILE: {
+							const { path, alias } = cell as FileCell;
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+									path={path}
+									alias={alias}
+								/>
+							);
+							break;
+						}
+						case CellType.EMBED: {
+							const { pathOrUrl, alias, isExternal } =
+								cell as EmbedCell;
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+									pathOrUrl={pathOrUrl}
+									alias={alias}
+									isExternal={isExternal}
+								/>
+							);
+							break;
+						}
+						case CellType.CHECKBOX: {
+							const { value } = cell as CheckboxCell;
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+									value={value}
+								/>
+							);
+							break;
+						}
+						case CellType.DATE: {
+							const { dateTime } = cell as DateCell;
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+									dateTime={dateTime}
+									onColumnChange={onColumnChange}
+								/>
+							);
+							break;
+						}
+						case CellType.CREATION_TIME: {
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+								/>
+							);
+							break;
+						}
+						case CellType.LAST_EDITED_TIME: {
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+								/>
+							);
+							break;
+						}
+						case CellType.SOURCE: {
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+								/>
+							);
+							break;
+						}
+						case CellType.SOURCE_FILE: {
+							const { path } = cell as SourceFileCell;
+							contentNode = (
+								<BodyCellContainer
+									key={id}
+									{...commonProps}
+									type={type}
+									path={path}
+								/>
+							);
+							break;
+						}
+						default:
+							throw new Error(
+								`Cell type ${type} not implemented`
+							);
+					}
+				}
+				return (
+					<BodyCell
+						key={key}
 						rowId={rowId}
-						onDeleteClick={onRowDeleteClick}
-						onInsertAboveClick={onRowInsertAboveClick}
-						onInsertBelowClick={onRowInsertBelowClick}
-						onRowReorder={onRowReorder}
+						contentNode={contentNode}
+						index={i}
+						numFrozenColumns={numFrozenColumns}
 					/>
 				);
-			} else {
-				contentNode = <></>;
-			}
-		} else {
-			const {
-				id: columnId,
-				width,
-				type,
-				shouldWrapOverflow,
-				currencyType,
-				includeTime,
-				dateFormatSeparator,
-				numberPrefix,
-				numberSeparator,
-				numberFormat,
-				numberSuffix,
-				dateFormat,
-				hour12,
-				tags,
-				verticalPadding,
-				horizontalPadding,
-				aspectRatio,
-				frontmatterKey,
-			} = column;
-
-			const cell = row.cells.find((cell) => cell.columnId === columnId);
-			if (!cell)
-				throw new CellNotFoundError({
-					columnId,
-					rowId,
-				});
-
-			const source =
-				sources.find((source) => source.id === row.sourceId) ?? null;
-
-			key = column.id;
-
-			const { id, hasValidFrontmatter } = cell;
-
-			const commonProps = {
-				id,
-				hasValidFrontmatter,
-				columnId,
-				frontmatterKey,
-				verticalPadding,
-				includeTime,
-				dateFormatSeparator,
-				horizontalPadding,
-				aspectRatio,
-				columnTags: tags,
-				source,
-				hour12,
-				numberFormat,
-				rowCreationTime: creationDateTime,
-				dateFormat,
-				currencyType,
-				numberPrefix,
-				numberSuffix,
-				numberSeparator,
-				rowLastEditedTime: lastEditedDateTime,
-				shouldWrapOverflow,
-				width,
-				onCellChange,
-			};
-
-			switch (type) {
-				case CellType.TEXT: {
-					const { content } = cell as TextCell;
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-							content={content}
-						/>
-					);
-					break;
-				}
-				case CellType.NUMBER: {
-					const { value } = cell as NumberCell;
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-							value={value}
-						/>
-					);
-					break;
-				}
-				case CellType.TAG: {
-					const { tagId } = cell as TagCell;
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-							tagId={tagId}
-							onTagAdd={onTagAdd}
-							onTagCellAdd={onTagCellAdd}
-							onTagCellRemove={onTagCellRemove}
-							onTagCellMultipleRemove={onTagCellMultipleRemove}
-							onTagChange={onTagChange}
-							onTagDeleteClick={onTagDeleteClick}
-						/>
-					);
-					break;
-				}
-				case CellType.MULTI_TAG: {
-					const { tagIds } = cell as MultiTagCell;
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-							tagIds={tagIds}
-							onCellChange={onCellChange}
-							onTagAdd={onTagAdd}
-							onTagCellAdd={onTagCellAdd}
-							onTagCellRemove={onTagCellRemove}
-							onTagCellMultipleRemove={onTagCellMultipleRemove}
-							onTagChange={onTagChange}
-							onTagDeleteClick={onTagDeleteClick}
-						/>
-					);
-					break;
-				}
-				case CellType.FILE: {
-					const { path, alias } = cell as FileCell;
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-							path={path}
-							alias={alias}
-						/>
-					);
-					break;
-				}
-				case CellType.EMBED: {
-					const { pathOrUrl, alias, isExternal } = cell as EmbedCell;
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-							pathOrUrl={pathOrUrl}
-							alias={alias}
-							isExternal={isExternal}
-						/>
-					);
-					break;
-				}
-				case CellType.CHECKBOX: {
-					const { value } = cell as CheckboxCell;
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-							value={value}
-						/>
-					);
-					break;
-				}
-				case CellType.DATE: {
-					const { dateTime } = cell as DateCell;
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-							dateTime={dateTime}
-							onColumnChange={onColumnChange}
-						/>
-					);
-					break;
-				}
-				case CellType.CREATION_TIME: {
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-						/>
-					);
-					break;
-				}
-				case CellType.LAST_EDITED_TIME: {
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-						/>
-					);
-					break;
-				}
-				case CellType.SOURCE: {
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-						/>
-					);
-					break;
-				}
-				case CellType.SOURCE_FILE: {
-					const { path } = cell as SourceFileCell;
-					contentNode = (
-						<BodyCellContainer
-							key={id}
-							{...commonProps}
-							type={type}
-							path={path}
-						/>
-					);
-					break;
-				}
-				default:
-					throw new Error(`Cell type ${type} not implemented`);
-			}
-		}
-		return (
-			<BodyCell
-				key={key}
-				rowId={rowId}
-				contentNode={contentNode}
-				index={i}
-				numFrozenColumns={numFrozenColumns}
-			/>
-		);
-	});
+			}}
+		</For>
+	);
 };
 
 interface HeaderRowsProps {
